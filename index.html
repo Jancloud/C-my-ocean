@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>萤火虫之舞 - 情绪粒子海洋</title>
+    <style>
+        /* 页面基础重置，确保全屏无滚动条 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #000000;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            user-select: none;
+        }
+
+        /* 画布填满整个视口 */
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        /* 极简精致的顶部UI覆盖层 */
+        .overlay {
+            position: absolute;
+            top: 8%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            text-align: center;
+            pointer-events: none;
+            color: rgba(255, 255, 255, 0.75);
+            letter-spacing: 0.3em;
+        }
+
+        .title {
+            font-size: 1.1rem;
+            font-weight: 300;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+            margin-bottom: 0.5rem;
+            transition: color 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .subtitle {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.35);
+            transition: color 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* 底部总体控制区域 */
+        .control-container {
+            position: absolute;
+            bottom: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            width: 100%;
+            max-width: 420px;
+            padding: 0 20px;
+        }
+
+        /* 半透明极简拟态输入框 */
+        .emotion-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 10px 24px;
+            color: #ffffff;
+            font-size: 0.85rem;
+            outline: none;
+            text-align: center;
+            letter-spacing: 0.1em;
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .emotion-input:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+        }
+
+        .emotion-input::placeholder {
+            color: rgba(255, 255, 255, 0.25);
+            font-size: 0.8rem;
+        }
+
+        /* 可点击的情绪快捷药水面板 */
+        .mood-panel {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            pointer-events: auto; /* 必须允许点击事件 */
+            width: 100%;
+        }
+
+        .mood-btn {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 5px 12px;
+            font-size: 0.72rem;
+            color: rgba(255, 255, 255, 0.45);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            letter-spacing: 0.05em;
+        }
+
+        .mood-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.25);
+            transform: translateY(-1px);
+        }
+
+        /* 各个情绪按钮被激活时的霓虹灯效 */
+        .mood-btn.active-default {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.15);
+        }
+
+        .mood-btn.active-melancholy {
+            background: rgba(120, 180, 255, 0.12);
+            color: #78b4ff;
+            border-color: rgba(120, 180, 255, 0.4);
+            box-shadow: 0 0 10px rgba(120, 180, 255, 0.2);
+        }
+
+        .mood-btn.active-energetic {
+            background: rgba(255, 60, 0, 0.12);
+            color: #ff3c00;
+            border-color: rgba(255, 60, 0, 0.4);
+            box-shadow: 0 0 10px rgba(255, 60, 0, 0.2);
+        }
+
+        .mood-btn.active-calm {
+            background: rgba(168, 230, 207, 0.12);
+            color: #a8e6cf;
+            border-color: rgba(168, 230, 207, 0.4);
+            box-shadow: 0 0 10px rgba(168, 230, 207, 0.2);
+        }
+
+        .mood-btn.active-angry {
+            background: rgba(255, 0, 60, 0.12);
+            color: #ff003c;
+            border-color: rgba(255, 0, 60, 0.4);
+            box-shadow: 0 0 10px rgba(255, 0, 60, 0.2);
+        }
+
+        .mood-btn.active-romantic {
+            background: rgba(255, 182, 193, 0.12);
+            color: #ffb6c1;
+            border-color: rgba(255, 182, 193, 0.4);
+            box-shadow: 0 0 10px rgba(255, 182, 193, 0.2);
+        }
+
+        /* 柔和的提示语 */
+        .tip-text {
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.7rem;
+            letter-spacing: 0.1em;
+            pointer-events: none;
+            text-align: center;
+            transition: color 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="overlay">
+        <div id="appTitle" class="title">萤火虫之舞</div>
+        <div id="appSubtitle" class="subtitle">DANCE OF FIREFLIES</div>
+    </div>
+
+    <div class="control-container">
+        <input 
+            type="text" 
+            id="emotionInput" 
+            class="emotion-input" 
+            placeholder="写下或点击下方配方改变情绪..." 
+            autocomplete="off"
+        >
+        
+        <!-- 交互面板：快捷情绪药水 -->
+        <div class="mood-panel" id="moodPanel">
+            <button class="mood-btn active-default" data-emotion="">🌱 默认</button>
+            <button class="mood-btn" data-emotion="忧郁">💧 忧郁</button>
+            <button class="mood-btn" data-emotion="平静">🕊️ 平静</button>
+            <button class="mood-btn" data-emotion="浪漫">🌸 浪漫</button>
+            <button class="mood-btn" data-emotion="能量">⚡ 能量</button>
+            <button class="mood-btn" data-emotion="愤怒">🌋 愤怒</button>
+        </div>
+
+        <div id="tipText" class="tip-text">输入或点按情绪开启海洋变幻</div>
+    </div>
+
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // 五维超大规模情绪物理参数库
+        const EMOTION_CONFIGS = {
+            default: {
+                primaryColor: { r: 255, g: 255, b: 255 },  // 核心微白
+                glowColor: { r: 255, g: 254, b: 230 },     // 暖金光晕
+                speed: 1.0,                                // 自由漂移速度系数
+                ease: 1.0,                                 // 随动敏捷系数
+                flicker: 1.0,                              // 闪烁频率系数
+                bgAlpha: 0.08,                             // 残影系数（值越小，拖尾越长）
+                title: '萤火虫之舞',
+                subtitle: 'DANCE OF FIREFLIES',
+                tip: '输入或点按情绪开启海洋变幻'
+            },
+            melancholy: { // 忧郁
+                primaryColor: { r: 120, g: 180, b: 255 },  // 冰蓝核心
+                glowColor: { r: 50, g: 15, b: 120 },       // 深邃蓝紫霓虹光晕
+                speed: 0.22,                               // 极其缓慢的深海流淌
+                ease: 0.3,                                 // 滞重感，阻力大
+                flicker: 0.4,                              // 极缓的明暗过渡（像沉重的呼吸）
+                bgAlpha: 0.035,                            // 极长的幽深流光拖尾
+                title: '深海沉溺',
+                subtitle: 'MELANCHOLY OCEAN',
+                tip: '深海之中，让思绪缓慢坠落'
+            },
+            energetic: { // 充满能量
+                primaryColor: { r: 255, g: 245, b: 160 },  // 亮白炽黄核心
+                glowColor: { r: 255, g: 60, b: 0 },        // 烈焰橙红高亮光晕
+                speed: 2.8,                                // 狂乱的自由流速
+                ease: 2.6,                                 // 超强随动敏捷度
+                flicker: 3.5,                              // 高频能量颤抖闪烁
+                bgAlpha: 0.15,                             // 短而锐利的爆裂流火残影
+                title: '太阳耀斑',
+                subtitle: 'SOLAR FLARE ACTIVATION',
+                tip: '狂热暴风！点击画布释放等离子冲击波'
+            },
+            calm: { // 平静 / 禅意
+                primaryColor: { r: 168, g: 230, b: 207 },  // 翡翠嫩绿芯
+                glowColor: { r: 35, g: 120, b: 85 },       // 幽谷寂静深绿光晕
+                speed: 0.45,                               // 极其轻柔规则的摆动
+                ease: 0.65,                                // 温和舒缓的跟随
+                flicker: 0.3,                              // 几乎不闪烁，极为温润
+                bgAlpha: 0.12,                             // 干净利落，无黏附拖尾
+                title: '止水微澜',
+                subtitle: 'ZEN TRANQUILITY',
+                tip: '静听风吟，看万物归于纯粹与安宁'
+            },
+            angry: { // 愤怒 / 暴躁
+                primaryColor: { r: 255, g: 0, b: 60 },     // 沸腾血红芯
+                glowColor: { r: 120, g: 0, b: 15 },        // 暗沉血煞暗红霓虹
+                speed: 3.8,                                // 狂怒的流向
+                ease: 3.4,                                 // 超高响应，无阻尼狂乱
+                flicker: 6.0,                              // 极高频率的痛苦颤抖闪动
+                bgAlpha: 0.22,                             // 瞬间生灭的暴虐残像
+                title: '熔岩怒火',
+                subtitle: 'RAGING LAVA ERUPTION',
+                tip: '怒不可遏！点击引发超音速熔岩爆破！'
+            },
+            romantic: { // 浪漫
+                primaryColor: { r: 255, g: 192, b: 203 },  // 樱粉核心
+                glowColor: { r: 160, g: 40, b: 95 },       // 柔梦绯红玫瑰晕
+                speed: 0.85,                               // 摇曳摆动
+                ease: 0.75,                                // 软弹如棉花糖的拉扯感
+                flicker: 1.5,                              // 带有灵动节奏的小跳跃闪烁
+                bgAlpha: 0.05,                             // 优雅无比的少女粉红极光长曳
+                title: '粉色星尘',
+                subtitle: 'ROMANTIC STELLAE',
+                tip: '满天星光，皆是宇宙写给你的呢喃'
+            }
+        };
+
+        // 当前渲染物理参数
+        const currentConfig = {
+            primaryColor: { r: 255, g: 255, b: 255 },
+            glowColor: { r: 255, g: 254, b: 230 },
+            speed: 1.0,
+            ease: 1.0,
+            flicker: 1.0,
+            bgAlpha: 0.08
+        };
+
+        let targetConfig = EMOTION_CONFIGS.default;
+        let activeEmotionName = 'default';
+
+        const emotionInput = document.getElementById('emotionInput');
+        const appTitle = document.getElementById('appTitle');
+        const appSubtitle = document.getElementById('appSubtitle');
+        const tipText = document.getElementById('tipText');
+        const moodPanel = document.getElementById('moodPanel');
+
+        // 统一UI色彩变幻逻辑
+        function updateUIStyle(titleColor, subColor, tipColor) {
+            appTitle.style.color = titleColor;
+            appSubtitle.style.color = subColor;
+            tipText.style.color = tipColor;
+        }
+
+        // 解析并激活情绪
+        function applyEmotion(val) {
+            const cleanVal = val.trim();
+            let matchedKey = 'default';
+
+            if (cleanVal === '忧郁' || cleanVal.toLowerCase() === 'melancholy') {
+                matchedKey = 'melancholy';
+                updateUIStyle('#78b4ff', 'rgba(120, 180, 255, 0.4)', 'rgba(120, 180, 255, 0.35)');
+            } else if (cleanVal === '充满能量' || cleanVal === '能量' || cleanVal.toLowerCase() === 'energetic') {
+                matchedKey = 'energetic';
+                updateUIStyle('#ff3c00', 'rgba(255, 60, 0, 0.4)', 'rgba(255, 60, 0, 0.35)');
+            } else if (cleanVal === '平静' || cleanVal === '禅' || cleanVal.toLowerCase() === 'calm') {
+                matchedKey = 'calm';
+                updateUIStyle('#a8e6cf', 'rgba(168, 230, 207, 0.4)', 'rgba(168, 230, 207, 0.35)');
+            } else if (cleanVal === '愤怒' || cleanVal === '暴躁' || cleanVal.toLowerCase() === 'angry') {
+                matchedKey = 'angry';
+                updateUIStyle('#ff003c', 'rgba(255, 0, 60, 0.4)', 'rgba(255, 0, 60, 0.35)');
+            } else if (cleanVal === '浪漫' || cleanVal === '恋爱' || cleanVal.toLowerCase() === 'romantic') {
+                matchedKey = 'romantic';
+                updateUIStyle('#ffb6c1', 'rgba(255, 182, 193, 0.4)', 'rgba(255, 182, 193, 0.35)');
+            } else {
+                matchedKey = 'default';
+                updateUIStyle('#ffffff', 'rgba(255, 255, 255, 0.35)', 'rgba(255, 255, 255, 0.3)');
+            }
+
+            targetConfig = EMOTION_CONFIGS[matchedKey];
+            activeEmotionName = matchedKey;
+            
+            appTitle.innerText = targetConfig.title;
+            appSubtitle.innerText = targetConfig.subtitle;
+            tipText.innerText = targetConfig.tip;
+
+            // 同步激活物理按钮的状态类
+            const buttons = moodPanel.querySelectorAll('.mood-btn');
+            buttons.forEach(btn => {
+                // 清理所有的 active 样式
+                btn.className = 'mood-btn';
+                
+                const btnEmotion = btn.getAttribute('data-emotion');
+                // 判断匹配
+                if ((matchedKey === 'default' && btnEmotion === '') || 
+                    (matchedKey === 'melancholy' && btnEmotion === '忧郁') ||
+                    (matchedKey === 'energetic' && btnEmotion === '能量') ||
+                    (matchedKey === 'calm' && btnEmotion === '平静') ||
+                    (matchedKey === 'angry' && btnEmotion === '愤怒') ||
+                    (matchedKey === 'romantic' && btnEmotion === '浪漫')) {
+                    btn.classList.add(`active-${matchedKey}`);
+                }
+            });
+        }
+
+        // 监听手动打字输入
+        emotionInput.addEventListener('input', (e) => {
+            applyEmotion(e.target.value);
+        });
+
+        // 监听点击快捷按钮
+        moodPanel.addEventListener('click', (e) => {
+            const btn = e.target.closest('.mood-btn');
+            if (!btn) return;
+            const emotionVal = btn.getAttribute('data-emotion');
+            emotionInput.value = emotionVal;
+            applyEmotion(emotionVal);
+        });
+
+        // 线性插值辅助
+        function lerp(start, end, amt) {
+            return start + (end - start) * amt;
+        }
+
+        // 平滑更新物理过渡状态
+        function updateInterpolation() {
+            const rate = 0.025; 
+            
+            currentConfig.primaryColor.r = lerp(currentConfig.primaryColor.r, targetConfig.primaryColor.r, rate);
+            currentConfig.primaryColor.g = lerp(currentConfig.primaryColor.g, targetConfig.primaryColor.g, rate);
+            currentConfig.primaryColor.b = lerp(currentConfig.primaryColor.b, targetConfig.primaryColor.b, rate);
+
+            currentConfig.glowColor.r = lerp(currentConfig.glowColor.r, targetConfig.glowColor.r, rate);
+            currentConfig.glowColor.g = lerp(currentConfig.glowColor.g, targetConfig.glowColor.g, rate);
+            currentConfig.glowColor.b = lerp(currentConfig.glowColor.b, targetConfig.glowColor.b, rate);
+
+            currentConfig.speed = lerp(currentConfig.speed, targetConfig.speed, rate);
+            currentConfig.ease = lerp(currentConfig.ease, targetConfig.ease, rate);
+            currentConfig.flicker = lerp(currentConfig.flicker, targetConfig.flicker, rate);
+            currentConfig.bgAlpha = lerp(currentConfig.bgAlpha, targetConfig.bgAlpha, rate);
+        }
+
+        // 鼠标与触摸状态
+        const mouse = {
+            x: window.innerWidth / 2,
+            y: window.innerHeight / 2,
+            targetX: window.innerWidth / 2,
+            targetY: window.innerHeight / 2,
+            isActive: false
+        };
+
+        function updateMouse(e) {
+            mouse.isActive = true;
+            if (e.touches) {
+                mouse.targetX = e.touches[0].clientX;
+                mouse.targetY = e.touches[0].clientY;
+            } else {
+                mouse.targetX = e.clientX;
+                mouse.targetY = e.clientY;
+            }
+        }
+
+        window.addEventListener('mousemove', updateMouse);
+        window.addEventListener('touchmove', updateMouse, { passive: true });
+        window.addEventListener('mouseleave', () => { mouse.isActive = false; });
+
+        // 💥 等离子冲击波环
+        class Shockwave {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.radius = 0;
+                // 冲击波大小随情绪狂烈程度放缩
+                this.maxRadius = 260 * currentConfig.speed; 
+                // 冲击波扩张速度（愤怒状态扩散速度极快）
+                this.speed = (activeEmotionName === 'angry' ? 14 : 9) * currentConfig.speed;      
+                this.alpha = 1.0;
+            }
+
+            update() {
+                this.radius += this.speed;
+                this.alpha = 1 - (this.radius / this.maxRadius);
+                return this.radius < this.maxRadius;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.strokeStyle = `rgba(${Math.round(currentConfig.glowColor.r)}, ${Math.round(currentConfig.glowColor.g)}, ${Math.round(currentConfig.glowColor.b)}, ${this.alpha * 0.4})`;
+                ctx.lineWidth = activeEmotionName === 'angry' ? 4 : 2; // 愤怒的边界格外宽厚狂暴
+                ctx.stroke();
+            }
+        }
+
+        const shockwaves = [];
+
+        function triggerExplosion(x, y) {
+            // 在平静状态下，不允许出现狂暴粒子击退效果，而是产生超级轻柔的水波纹
+            if (activeEmotionName === 'calm') {
+                shockwaves.push(new Shockwave(x, y));
+                // 给粒子极度微弱的摇晃力，而不是炸开
+                particles.forEach(p => {
+                    const dx = p.x - x;
+                    const dy = p.y - y;
+                    const dist = Math.hypot(dx, dy);
+                    if (dist < 180 && dist > 0) {
+                        p.pushX += (dx / dist) * 1.5;
+                        p.pushY += (dy / dist) * 1.5;
+                    }
+                });
+                return;
+            }
+
+            shockwaves.push(new Shockwave(x, y));
+
+            particles.forEach(p => {
+                const dx = p.x - x;
+                const dy = p.y - y;
+                const dist = Math.hypot(dx, dy);
+                const maxPushRadius = (activeEmotionName === 'angry' ? 360 : 280) * currentConfig.speed;
+
+                if (dist < maxPushRadius && dist > 0) {
+                    // 距离中心越近，推力越猛烈。愤怒模式推力乘以1.5倍
+                    const baseForce = activeEmotionName === 'angry' ? 36 : 24;
+                    const force = (1 - dist / maxPushRadius) * baseForce * currentConfig.speed;
+                    p.pushX += (dx / dist) * force;
+                    p.pushY += (dy / dist) * force;
+                }
+            });
+        }
+
+        // 点击画布（非UI区域）触发
+        window.addEventListener('mousedown', (e) => {
+            if (e.target.id === 'emotionInput' || e.target.closest('#moodPanel')) return;
+            triggerExplosion(e.clientX, e.clientY);
+        });
+
+        window.addEventListener('touchstart', (e) => {
+            if (e.target.id === 'emotionInput' || e.target.closest('#moodPanel')) return;
+            const touch = e.touches[0];
+            triggerExplosion(touch.clientX, touch.clientY);
+        }, { passive: true });
+
+
+        // 粒子系统定义
+        class Particle {
+            constructor() {
+                this.reset();
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+            }
+
+            reset() {
+                this.size = Math.random() * 1.6 + 0.6; 
+                this.baseAlpha = Math.random() * 0.5 + 0.3; 
+                this.alpha = this.baseAlpha;
+                
+                this.flickerSpeed = Math.random() * 0.03 + 0.01;
+                this.flickerOffset = Math.random() * Math.PI * 2;
+                
+                this.baseEase = Math.random() * 0.04 + 0.01; 
+                
+                this.offsetX = (Math.random() - 0.5) * 160;
+                this.offsetY = (Math.random() - 0.5) * 160;
+                
+                this.vx = (Math.random() - 0.5) * 0.3;
+                this.vy = (Math.random() - 0.5) * 0.3;
+
+                this.pushX = 0;
+                this.pushY = 0;
+            }
+
+            update(tick) {
+                // 1. 随情绪而动的闪烁律
+                const tickFactor = tick * currentConfig.flicker;
+                this.alpha = this.baseAlpha + Math.sin(tickFactor * this.flickerSpeed + this.flickerOffset) * 0.25;
+                if (this.alpha < 0) this.alpha = 0;
+
+                // 2. 运动物理机制
+                let targetX, targetY;
+                const dynamicOffsetAmp = 160 * currentConfig.speed;
+
+                if (activeEmotionName === 'calm') {
+                    // 【平静模式下专属物理】：没有任何杂乱抖动偏移，粒子像丝线一样呈漂亮的圆周弦波环绕鼠标
+                    if (mouse.isActive) {
+                        const zenAngle = tick * 0.012 + this.flickerOffset;
+                        const radius = 60 + Math.sin(tick * 0.005 + this.flickerOffset) * 40;
+                        targetX = mouse.x + Math.cos(zenAngle) * radius;
+                        targetY = mouse.y + Math.sin(zenAngle) * radius;
+                    } else {
+                        const centerAngle = tick * 0.005 + this.flickerOffset;
+                        targetX = (canvas.width / 2) + Math.cos(centerAngle) * 120;
+                        targetY = (canvas.height / 2) + Math.sin(centerAngle) * 120;
+                    }
+                } else if (mouse.isActive) {
+                    targetX = mouse.x + (this.offsetX / 160) * dynamicOffsetAmp;
+                    targetY = mouse.y + (this.offsetY / 160) * dynamicOffsetAmp;
+                    
+                    this.offsetX += Math.sin(tickFactor * 0.01 + this.flickerOffset) * 0.3 * currentConfig.speed;
+                    this.offsetY += Math.cos(tickFactor * 0.01 + this.flickerOffset) * 0.3 * currentConfig.speed;
+                } else {
+                    const centerAngle = tick * 0.001 * currentConfig.speed + this.flickerOffset;
+                    targetX = (canvas.width / 2) + Math.cos(centerAngle) * 100;
+                    targetY = (canvas.height / 2) + Math.sin(centerAngle) * 100;
+                }
+
+                // 阻尼吸引随动
+                const activeEase = this.baseEase * currentConfig.ease;
+                this.x += (targetX - this.x) * activeEase;
+                this.y += (targetY - this.y) * activeEase;
+
+                // 衰减等离子冲量推力（空气阻力，每帧流失 8%）
+                this.pushX *= 0.92;
+                this.pushY *= 0.92;
+                this.x += this.pushX;
+                this.y += this.pushY;
+
+                // 3. 【浪漫模式下专属物理】：粒子在空中微弱自漂移的同时，会获得一个缓缓向上的重力浮力 (Like balloons)
+                const buoyancyY = activeEmotionName === 'romantic' ? -0.45 : 0;
+
+                // 基础自漂移运动
+                this.x += this.vx * currentConfig.speed;
+                this.y += (this.vy * currentConfig.speed) + buoyancyY;
+
+                // 越界约束（浪漫模式向上漂移出屏幕后，自动从底部重组）
+                if (this.y < -10) {
+                    this.y = canvas.height + 10;
+                    this.x = Math.random() * canvas.width;
+                }
+            }
+
+            draw() {
+                const rP = Math.round(currentConfig.primaryColor.r);
+                const gP = Math.round(currentConfig.primaryColor.g);
+                const bP = Math.round(currentConfig.primaryColor.b);
+
+                const rG = Math.round(currentConfig.glowColor.r);
+                const gG = Math.round(currentConfig.glowColor.g);
+                const bG = Math.round(currentConfig.glowColor.b);
+
+                // 1. 绘制粒子亮芯
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(${rP}, ${gP}, ${bP}, ${this.alpha})`;
+                ctx.fill();
+
+                // 2. 绘制柔和霓虹荧光光晕
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size * 3.8, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(${rG}, ${gG}, ${bG}, ${this.alpha * 0.35})`;
+                ctx.fill();
+            }
+        }
+
+        // 初始化粒子群
+        const particleCount = 280;
+        const particles = [];
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+
+        let tick = 0;
+
+        function animate() {
+            // 平滑更新物理插值状态
+            updateInterpolation();
+
+            // 动态情绪长拖尾
+            ctx.fillStyle = `rgba(0, 0, 0, ${currentConfig.bgAlpha})`;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 更新并绘制视觉波纹
+            for (let i = shockwaves.length - 1; i >= 0; i--) {
+                const s = shockwaves[i];
+                if (s.update()) {
+                    s.draw();
+                } else {
+                    shockwaves.splice(i, 1);
+                }
+            }
+
+            // 吸引中心弹簧过渡。在“平静”状态下让鼠标过渡极度滑润
+            const mouseEase = (activeEmotionName === 'calm' ? 0.04 : 0.08) * currentConfig.ease;
+            mouse.x += (mouse.targetX - mouse.x) * mouseEase;
+            mouse.y += (mouse.targetY - mouse.y) * mouseEase;
+
+            tick++;
+
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update(tick);
+                particles[i].draw();
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        window.onload = function() {
+            animate();
+        };
+    </script>
+</body>
+</html>
