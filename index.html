@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>萤火虫之舞 - 情绪粒子海洋</title>
+    <title>动态心流 - 情绪粒子海洋</title>
     <style>
         /* 页面基础重置，确保全屏无滚动条 */
         * {
@@ -115,9 +115,9 @@
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 24px;
-            padding: 10px 24px;
+            padding: 12px 24px;
             color: #ffffff;
-            font-size: 0.85rem;
+            font-size: 0.88rem;
             outline: none;
             text-align: center;
             letter-spacing: 0.1em;
@@ -167,46 +167,11 @@
         }
 
         /* 情绪按钮被激活时的霓虹灯效 */
-        .mood-btn.active-default {
+        .mood-btn.active-mood {
             background: rgba(255, 255, 255, 0.12);
             color: #ffffff;
             border-color: rgba(255, 255, 255, 0.4);
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.15);
-        }
-
-        .mood-btn.active-melancholy {
-            background: rgba(120, 180, 255, 0.12);
-            color: #78b4ff;
-            border-color: rgba(120, 180, 255, 0.4);
-            box-shadow: 0 0 10px rgba(120, 180, 255, 0.2);
-        }
-
-        .mood-btn.active-energetic {
-            background: rgba(255, 60, 0, 0.12);
-            color: #ff3c00;
-            border-color: rgba(255, 60, 0, 0.4);
-            box-shadow: 0 0 10px rgba(255, 60, 0, 0.2);
-        }
-
-        .mood-btn.active-calm {
-            background: rgba(168, 230, 207, 0.12);
-            color: #a8e6cf;
-            border-color: rgba(168, 230, 207, 0.4);
-            box-shadow: 0 0 10px rgba(168, 230, 207, 0.2);
-        }
-
-        .mood-btn.active-angry {
-            background: rgba(255, 0, 60, 0.12);
-            color: #ff003c;
-            border-color: rgba(255, 0, 60, 0.4);
-            box-shadow: 0 0 10px rgba(255, 0, 60, 0.2);
-        }
-
-        .mood-btn.active-romantic {
-            background: rgba(255, 182, 193, 0.12);
-            color: #ffb6c1;
-            border-color: rgba(255, 182, 193, 0.4);
-            box-shadow: 0 0 10px rgba(255, 182, 193, 0.2);
         }
 
         /* 柔和的提示语 */
@@ -223,7 +188,7 @@
         .sandbox-panel {
             position: absolute;
             top: 0;
-            right: -320px; /* 默认隐藏 */
+            right: -320px; 
             width: 320px;
             height: 100%;
             background: rgba(10, 10, 10, 0.85);
@@ -274,7 +239,6 @@
             font-family: monospace;
         }
 
-        /* 自定义美观的 Slider */
         .sandbox-slider {
             -webkit-appearance: none;
             width: 100%;
@@ -301,7 +265,6 @@
             transform: scale(1.2);
         }
 
-        /* 屏保自巡航按钮 */
         .cruise-btn {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -333,21 +296,18 @@
 <body>
 
     <div class="overlay">
-        <div id="appTitle" class="title">萤火虫之舞</div>
-        <div id="appSubtitle" class="subtitle">DANCE OF FIREFLIES</div>
+        <div id="appTitle" class="title">星空心流</div>
+        <div id="appSubtitle" class="subtitle">INPUT YOUR MINDVERSE</div>
     </div>
 
-    <!-- 右上角快捷控制 -->
     <div class="top-controls">
         <div id="audioToggle" class="icon-btn" title="切换声效声音">🔇</div>
         <div id="gearToggle" class="icon-btn" title="高级沙盒微调">⚙️</div>
     </div>
 
-    <!-- 右侧滑出的沙盒面板 -->
     <div id="sandbox" class="sandbox-panel">
         <div class="sandbox-header">造物主沙盒</div>
         
-        <!-- 粒子数量 -->
         <div class="sandbox-group">
             <div class="sandbox-label">
                 <span>粒子数量</span>
@@ -356,7 +316,6 @@
             <input type="range" id="pCountSlider" class="sandbox-slider" min="50" max="800" step="10" value="280">
         </div>
 
-        <!-- 光晕半径 -->
         <div class="sandbox-group">
             <div class="sandbox-label">
                 <span>荧光晕半径</span>
@@ -365,7 +324,6 @@
             <input type="range" id="pGlowSlider" class="sandbox-slider" min="1.0" max="8.0" step="0.2" value="3.8">
         </div>
 
-        <!-- 随动吸引力 -->
         <div class="sandbox-group">
             <div class="sandbox-label">
                 <span>吸引力强度</span>
@@ -374,7 +332,6 @@
             <input type="range" id="pAttractSlider" class="sandbox-slider" min="0.2" max="3.0" step="0.1" value="1.0">
         </div>
 
-        <!-- 自动巡航开关（屏保模式） -->
         <button id="cruiseBtn" class="cruise-btn">🛰️ 开启自动屏保巡航</button>
     </div>
 
@@ -383,21 +340,20 @@
             type="text" 
             id="emotionInput" 
             class="emotion-input" 
-            placeholder="写下或点击下方配方改变情绪..." 
+            placeholder="输入任意文字，实时定制你的宇宙..." 
             autocomplete="off"
         >
         
-        <!-- 交互面板：快捷情绪药水 -->
         <div class="mood-panel" id="moodPanel">
-            <button class="mood-btn active-default" data-emotion="">🌱 默认</button>
-            <button class="mood-btn" data-emotion="忧郁">💧 忧郁</button>
-            <button class="mood-btn" data-emotion="平静">🕊️ 平静</button>
-            <button class="mood-btn" data-emotion="浪漫">🌸 浪漫</button>
-            <button class="mood-btn" data-emotion="能量">⚡ 能量</button>
-            <button class="mood-btn" data-emotion="愤怒">🌋 愤怒</button>
+            <button class="mood-btn" data-emotion="星空之海">✨ 星空之海</button>
+            <button class="mood-btn" data-emotion="赛博朋克">🌆 赛博朋克</button>
+            <button class="mood-btn" data-emotion="暗夜极光">🌌 暗夜极光</button>
+            <button class="mood-btn" data-emotion="太阳耀斑">🔥 太阳耀斑</button>
+            <button class="mood-btn" data-emotion="黄金熔岩">🌋 黄金熔岩</button>
+            <button class="mood-btn" data-emotion="桃之夭夭">🌸 桃之夭夭</button>
         </div>
 
-        <div id="tipText" class="tip-text">输入或点按情绪开启海洋变幻</div>
+        <div id="tipText" class="tip-text">输入任意中英文词汇，解开隐藏的物理光谱</div>
     </div>
 
     <canvas id="canvas"></canvas>
@@ -413,11 +369,10 @@
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
 
-        // 🌟 ----------------- 🎵 WEB AUDIO API 声音合成引擎 -----------------
+        // 🎵 ----------------- WEB AUDIO API 声音引擎 -----------------
         let audioCtx = null;
         let isAudioMuted = true;
 
-        // 初始化音频上下文
         function initAudio() {
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -427,8 +382,7 @@
             }
         }
 
-        // 触发自适应声音合成器
-        function playSfx(emotion, normX, normY) {
+        function playSfx(waveType, freq, vol, attack, decay, release, normX) {
             if (isAudioMuted) return;
             initAudio();
             if (!audioCtx) return;
@@ -436,64 +390,6 @@
             const osc = audioCtx.createOscillator();
             const gainNode = audioCtx.createGain();
             const panner = audioCtx.createStereoPanner ? audioCtx.createStereoPanner() : null;
-
-            const minFreq = 120;
-            const maxFreq = 1100;
-            let freq = maxFreq - (normY * (maxFreq - minFreq));
-
-            let waveType = 'sine';
-            let attack = 0.05;
-            let decay = 0.4;
-            let sustain = 0.1;
-            let release = 0.6;
-            let vol = 0.15;
-
-            switch(emotion) {
-                case 'melancholy': 
-                    waveType = 'triangle';
-                    freq = freq * 0.4; 
-                    attack = 0.3;
-                    decay = 0.8;
-                    release = 1.5;
-                    vol = 0.18;
-                    break;
-                case 'energetic': 
-                    waveType = 'sawtooth';
-                    attack = 0.02;
-                    decay = 0.2;
-                    release = 0.3;
-                    vol = 0.06;
-                    break;
-                case 'calm': 
-                    waveType = 'sine';
-                    attack = 0.1;
-                    decay = 1.0;
-                    release = 2.0;
-                    vol = 0.22;
-                    break;
-                case 'angry': 
-                    waveType = 'square';
-                    freq = freq * 0.35; 
-                    attack = 0.01;
-                    decay = 0.3;
-                    release = 0.6;
-                    vol = 0.08;
-                    break;
-                case 'romantic': 
-                    waveType = 'triangle';
-                    attack = 0.15;
-                    decay = 0.5;
-                    release = 1.2;
-                    vol = 0.14;
-                    break;
-                default: 
-                    waveType = 'sine';
-                    attack = 0.04;
-                    decay = 0.3;
-                    release = 0.5;
-                    vol = 0.12;
-                    break;
-            }
 
             if (isNaN(freq) || freq < 20) freq = 220;
 
@@ -514,14 +410,13 @@
             const now = audioCtx.currentTime;
             gainNode.gain.setValueAtTime(0, now);
             gainNode.gain.linearRampToValueAtTime(vol, now + attack);
-            gainNode.gain.exponentialRampToValueAtTime(vol * sustain, now + attack + decay);
+            gainNode.gain.exponentialRampToValueAtTime(vol * 0.1, now + attack + decay);
             gainNode.gain.exponentialRampToValueAtTime(0.0001, now + attack + decay + release);
 
             osc.start(now);
             osc.stop(now + attack + decay + release + 0.1);
         }
 
-        // 🔊 静音切换控制器
         const audioToggle = document.getElementById('audioToggle');
         audioToggle.addEventListener('click', (e) => {
             isAudioMuted = !isAudioMuted;
@@ -529,7 +424,7 @@
                 initAudio();
                 audioToggle.innerText = '🔊';
                 audioToggle.style.color = '#a8e6cf';
-                playSfx('calm', 0.5, 0.5);
+                playSfx('sine', 440, 0.1, 0.1, 0.5, 0.5, 0.5);
             } else {
                 audioToggle.innerText = '🔇';
                 audioToggle.style.color = 'rgba(255, 255, 255, 0.65)';
@@ -537,7 +432,7 @@
             e.stopPropagation();
         });
 
-        // 🌟 ----------------- 🛠️ 沙盒控制系统 -----------------
+        // 🛠️ ----------------- 沙盒控制系统 -----------------
         const sandbox = document.getElementById('sandbox');
         const gearToggle = document.getElementById('gearToggle');
         
@@ -546,18 +441,15 @@
             e.stopPropagation();
         });
 
-        // 阻止沙盒内的所有鼠标和手势事件穿透到画布
         sandbox.addEventListener('mousedown', e => e.stopPropagation());
         sandbox.addEventListener('touchstart', e => e.stopPropagation(), {passive: true});
 
-        // 点击空白处关闭沙盒
         window.addEventListener('mousedown', (e) => {
             if (!sandbox.contains(e.target) && e.target !== gearToggle) {
                 sandbox.classList.remove('open');
             }
         });
 
-        // ⚙️ 各种沙盒自定义滑块绑定
         let userGlowMultiplier = 1.0; 
         let userAttractMultiplier = 1.0; 
 
@@ -594,24 +486,18 @@
             }
         }
 
-        // 🛰️ 自动屏保巡航全局状态
         let isAutoCruising = false;
         let cruiseTime = 0;
         const cruiseBtn = document.getElementById('cruiseBtn');
 
-        // 安全注销自动巡航的统一函数
         function deactivateCruise() {
             if (isAutoCruising) {
                 isAutoCruising = false;
-                const btn = document.getElementById('cruiseBtn');
-                if (btn) {
-                    btn.classList.remove('active');
-                    btn.innerText = '🛰️ 开启自动屏保巡航';
-                }
+                cruiseBtn.classList.remove('active');
+                cruiseBtn.innerText = '🛰️ 开启自动屏保巡航';
             }
         }
 
-        // 绑定屏保巡航按钮监听，增加0.3秒自动闭合沙盒面板交互
         cruiseBtn.addEventListener('click', (e) => {
             isAutoCruising = !isAutoCruising;
             if (isAutoCruising) {
@@ -619,12 +505,8 @@
                 cruiseBtn.innerText = '🛰️ 屏保巡航运行中...';
                 mouse.isActive = true;
                 initAudio();
-                
-                // 【交互优化】：开启巡航 300 毫秒后自动收起侧边面板，确保画面纯净
                 setTimeout(() => {
-                    if (isAutoCruising) {
-                        sandbox.classList.remove('open');
-                    }
+                    if (isAutoCruising) sandbox.classList.remove('open');
                 }, 300);
             } else {
                 cruiseBtn.classList.remove('active');
@@ -633,173 +515,107 @@
             e.stopPropagation();
         });
 
-
-        // 🌟 ----------------- 🎭 五维超大规模情绪物理参数库 -----------------
-        const EMOTION_CONFIGS = {
-            default: {
-                primaryColor: { r: 255, g: 255, b: 255 },  
-                glowColor: { r: 255, g: 254, b: 230 },     
-                speed: 1.0,                                
-                ease: 1.0,                                 
-                flicker: 1.0,                              
-                bgAlpha: 0.08,                             
-                title: '萤火虫之舞',
-                subtitle: 'DANCE OF FIREFLIES',
-                tip: '输入或点按情绪开启海洋变幻'
-            },
-            melancholy: { 
-                primaryColor: { r: 120, g: 180, b: 255 },  
-                glowColor: { r: 50, g: 15, b: 120 },       
-                speed: 0.22,                               
-                ease: 0.3,                                 
-                flicker: 0.4,                              
-                bgAlpha: 0.035,                            
-                title: '深海沉溺',
-                subtitle: 'MELANCHOLY OCEAN',
-                tip: '深海之中，让思绪缓慢坠落'
-            },
-            energetic: { 
-                primaryColor: { r: 255, g: 245, b: 160 },  
-                glowColor: { r: 255, g: 60, b: 0 },        
-                speed: 2.8,                                
-                ease: 2.6,                                 
-                flicker: 3.5,                              
-                bgAlpha: 0.15,                             
-                title: '太阳耀斑',
-                subtitle: 'SOLAR FLARE ACTIVATION',
-                tip: '狂热暴风！点击/滑动释放等离子合成声浪'
-            },
-            calm: { 
-                primaryColor: { r: 168, g: 230, b: 207 },  
-                glowColor: { r: 35, g: 120, b: 85 },       
-                speed: 0.45,                               
-                ease: 0.65,                                
-                flicker: 0.3,                              
-                bgAlpha: 0.12,                             
-                title: '止水微澜',
-                subtitle: 'ZEN TRANQUILITY',
-                tip: '静听琴鸣，看万物归于纯粹与安宁'
-            },
-            angry: { 
-                primaryColor: { r: 255, g: 0, b: 60 },     
-                glowColor: { r: 120, g: 0, b: 15 },        
-                speed: 3.8,                                
-                ease: 3.4,                                 
-                flicker: 6.0,                              
-                bgAlpha: 0.22,                             
-                title: '熔岩怒火',
-                subtitle: 'RAGING LAVA ERUPTION',
-                tip: '怒不可遏！点击引发暴虐重低音熔岩爆破！'
-            },
-            romantic: { 
-                primaryColor: { r: 255, g: 192, b: 203 },  
-                glowColor: { r: 160, g: 40, b: 95 },       
-                speed: 0.85,                               
-                ease: 0.75,                                
-                flicker: 1.5,                              
-                bgAlpha: 0.05,                             
-                title: '粉色星尘',
-                subtitle: 'ROMANTIC STELLAE',
-                tip: '满天星光，皆是宇宙回荡给你的浪漫和弦'
-            }
-        };
-
+        // 🔮 ----------------- 方案一：情感流体哈希计算核心 -----------------
+        // 初始默认状态常数
         const currentConfig = {
             primaryColor: { r: 255, g: 255, b: 255 },
             glowColor: { r: 255, g: 254, b: 230 },
             speed: 1.0,
             ease: 1.0,
             flicker: 1.0,
-            bgAlpha: 0.08
+            bgAlpha: 0.08,
+            waveType: 'sine'
         };
 
-        let targetConfig = EMOTION_CONFIGS.default;
-        let activeEmotionName = 'default';
+        const targetConfig = JSON.parse(JSON.stringify(currentConfig));
 
+        // 【线性插值辅助函数】—— 用于平滑数值过渡
+        function lerp(start, end, amt) {
+            return start + (end - start) * amt;
+        }
+
+        // 核心算法：将字符串哈希映射成一整套物理与色彩宇宙
+        function parseTextToPhysics(str) {
+            deactivateCruise(); // 用户打字时结束巡航
+            const text = str.trim();
+
+            if (text === '') {
+                // 如果空，重置回原初暖白状态
+                targetConfig.primaryColor = { r: 255, g: 255, b: 255 };
+                targetConfig.glowColor = { r: 255, g: 254, b: 230 };
+                targetConfig.speed = 1.0;
+                targetConfig.ease = 1.0;
+                targetConfig.flicker = 1.0;
+                targetConfig.bgAlpha = 0.08;
+                targetConfig.waveType = 'sine';
+                
+                document.getElementById('appTitle').innerText = '星空心流';
+                document.getElementById('appTitle').style.color = '#ffffff';
+                document.getElementById('appSubtitle').innerText = 'INPUT YOUR MINDVERSE';
+                return;
+            }
+
+            // 1. 计算非线性累加字符串哈希值值
+            let hash = 0;
+            for (let i = 0; i < text.length; i++) {
+                hash = text.charCodeAt(i) + ((hash << 5) - hash);
+                hash = hash & hash; // 变成 32位整型
+            }
+            const absHash = Math.abs(hash);
+
+            // 2. 映射粒子亮芯色与外环荧光色（利用正弦色彩环保证色彩高饱和且和谐）
+            const rP = Math.floor(Math.sin(absHash * 0.017 + 0) * 127 + 128);
+            const gP = Math.floor(Math.sin(absHash * 0.017 + 2) * 127 + 128);
+            const bP = Math.floor(Math.sin(absHash * 0.017 + 4) * 127 + 128);
+            targetConfig.primaryColor = { r: rP, g: gP, b: bP };
+
+            const rG = Math.floor(Math.sin(absHash * 0.035 + 1) * 110 + 110);
+            const gG = Math.floor(Math.sin(absHash * 0.035 + 3) * 110 + 110);
+            const bG = Math.floor(Math.sin(absHash * 0.035 + 5) * 110 + 110);
+            targetConfig.glowColor = { r: rG, g: gG, b: bG };
+
+            // 3. 映射物理特性（将数值严密收束在安全、好看的常数区间内）
+            targetConfig.speed = 0.2 + (absHash % 100) / 100 * 3.8;
+            targetConfig.ease = 0.25 + ((absHash >> 4) % 100) / 100 * 2.75;
+            targetConfig.flicker = 0.3 + ((absHash >> 8) % 100) / 100 * 4.7;
+            targetConfig.bgAlpha = 0.03 + ((absHash >> 12) % 100) / 100 * 0.19;
+
+            // 4. 声音波形类型映射
+            const waveTypes = ['sine', 'triangle', 'sawtooth', 'square'];
+            targetConfig.waveType = waveTypes[absHash % 4];
+
+            // 5. 联动实时刷新页面 UI 的英文字幕与霓虹文字颜色
+            const titleEl = document.getElementById('appTitle');
+            const subtitleEl = document.getElementById('appSubtitle');
+            
+            titleEl.innerText = text;
+            titleEl.style.color = `rgb(${rP}, ${gP}, ${bP})`;
+            subtitleEl.innerText = `SPECTRUM HASH: 0x${absHash.toString(16).toUpperCase()}`;
+            subtitleEl.style.color = `rgba(${rG}, ${gG}, ${bG}, 0.5)`;
+        }
+
+        // 监听打字与小标签点击
         const emotionInput = document.getElementById('emotionInput');
-        const appTitle = document.getElementById('appTitle');
-        const appSubtitle = document.getElementById('appSubtitle');
-        const tipText = document.getElementById('tipText');
         const moodPanel = document.getElementById('moodPanel');
 
-        function updateUIStyle(titleColor, subColor, tipColor) {
-            appTitle.style.color = titleColor;
-            appSubtitle.style.color = subColor;
-            tipText.style.color = tipColor;
-        }
-
-        function applyEmotion(val) {
-            // 当切换情绪时，主动停止自动巡航，回到手动控制
-            deactivateCruise();
-
-            const cleanVal = val.trim();
-            let matchedKey = 'default';
-
-            if (cleanVal === '忧郁' || cleanVal.toLowerCase() === 'melancholy') {
-                matchedKey = 'melancholy';
-                updateUIStyle('#78b4ff', 'rgba(120, 180, 255, 0.4)', 'rgba(120, 180, 255, 0.35)');
-            } else if (cleanVal === '充满能量' || cleanVal === '能量' || cleanVal.toLowerCase() === 'energetic') {
-                matchedKey = 'energetic';
-                updateUIStyle('#ff3c00', 'rgba(255, 60, 0, 0.4)', 'rgba(255, 60, 0, 0.35)');
-            } else if (cleanVal === '平静' || cleanVal === '禅' || cleanVal.toLowerCase() === 'calm') {
-                matchedKey = 'calm';
-                updateUIStyle('#a8e6cf', 'rgba(168, 230, 207, 0.4)', 'rgba(168, 230, 207, 0.35)');
-            } else if (cleanVal === '愤怒' || cleanVal === '暴躁' || cleanVal.toLowerCase() === 'angry') {
-                matchedKey = 'angry';
-                updateUIStyle('#ff003c', 'rgba(255, 0, 60, 0.4)', 'rgba(255, 0, 60, 0.35)');
-            } else if (cleanVal === '浪漫' || cleanVal === '恋爱' || cleanVal.toLowerCase() === 'romantic') {
-                matchedKey = 'romantic';
-                updateUIStyle('#ffb6c1', 'rgba(255, 182, 193, 0.4)', 'rgba(255, 182, 193, 0.35)');
-            } else {
-                matchedKey = 'default';
-                updateUIStyle('#ffffff', 'rgba(255, 255, 255, 0.35)', 'rgba(255, 255, 255, 0.3)');
-            }
-
-            targetConfig = EMOTION_CONFIGS[matchedKey];
-            activeEmotionName = matchedKey;
-            
-            appTitle.innerText = targetConfig.title;
-            appSubtitle.innerText = targetConfig.subtitle;
-            tipText.innerText = targetConfig.tip;
-
-            const buttons = moodPanel.querySelectorAll('.mood-btn');
-            buttons.forEach(btn => {
-                btn.className = 'mood-btn';
-                const btnEmotion = btn.getAttribute('data-emotion');
-                if ((matchedKey === 'default' && btnEmotion === '') || 
-                    (matchedKey === 'melancholy' && btnEmotion === '忧郁') ||
-                    (matchedKey === 'energetic' && btnEmotion === '能量') ||
-                    (matchedKey === 'calm' && btnEmotion === '平静') ||
-                    (matchedKey === 'angry' && btnEmotion === '愤怒') ||
-                    (matchedKey === 'romantic' && btnEmotion === '浪漫')) {
-                    btn.classList.add(`active-${matchedKey}`);
-                }
-            });
-
-            if (!isAudioMuted) {
-                playSfx(matchedKey, 0.5, 0.4);
-            }
-        }
-
         emotionInput.addEventListener('input', (e) => {
-            applyEmotion(e.target.value);
+            parseTextToPhysics(e.target.value);
+            moodPanel.querySelectorAll('.mood-btn').forEach(b => b.className = 'mood-btn');
         });
 
         moodPanel.addEventListener('click', (e) => {
             const btn = e.target.closest('.mood-btn');
             if (!btn) return;
-            const emotionVal = btn.getAttribute('data-emotion');
-            emotionInput.value = emotionVal;
-            applyEmotion(emotionVal);
+            const textVal = btn.getAttribute('data-emotion');
+            emotionInput.value = textVal;
+            parseTextToPhysics(textVal);
+
+            moodPanel.querySelectorAll('.mood-btn').forEach(b => b.className = 'mood-btn');
+            btn.classList.add('active-mood');
         });
 
-        function lerp(start, end, amt) {
-            return start + (end - start) * amt;
-        }
-
         function updateInterpolation() {
-            const rate = 0.025; 
-            
+            const rate = 0.03; // 丝滑缓慢晕染过渡
             currentConfig.primaryColor.r = lerp(currentConfig.primaryColor.r, targetConfig.primaryColor.r, rate);
             currentConfig.primaryColor.g = lerp(currentConfig.primaryColor.g, targetConfig.primaryColor.g, rate);
             currentConfig.primaryColor.b = lerp(currentConfig.primaryColor.b, targetConfig.primaryColor.b, rate);
@@ -812,9 +628,10 @@
             currentConfig.ease = lerp(currentConfig.ease, targetConfig.ease, rate);
             currentConfig.flicker = lerp(currentConfig.flicker, targetConfig.flicker, rate);
             currentConfig.bgAlpha = lerp(currentConfig.bgAlpha, targetConfig.bgAlpha, rate);
+            currentConfig.waveType = targetConfig.waveType;
         }
 
-        // 鼠标与触摸物理状态
+        // 🖱️ ----------------- 鼠标与触摸状态管理 -----------------
         const mouse = {
             x: window.innerWidth / 2,
             y: window.innerHeight / 2,
@@ -827,7 +644,7 @@
         const sfxThrottle = 65; 
 
         function updateMouse(e) {
-            // 自动巡航中允许用户滑动鼠标至侧边，不再在此处敏感打断。
+            // 如果开启了自动巡航，用户的鼠标滑动不会打断巡航
             if (isAutoCruising) {
                 return; 
             }
@@ -845,7 +662,8 @@
             if (now - lastSfxTime > sfxThrottle && mouse.isActive) {
                 const normX = mouse.targetX / canvas.width;
                 const normY = mouse.targetY / canvas.height;
-                playSfx(activeEmotionName, normX, normY);
+                const freq = 1100 - (normY * 980);
+                playSfx(currentConfig.waveType, freq, 0.08, 0.1, 0.4, 0.6, normX);
                 lastSfxTime = now;
             }
         }
@@ -853,20 +671,20 @@
         window.addEventListener('mousemove', updateMouse);
         window.addEventListener('touchmove', updateMouse, { passive: true });
         window.addEventListener('mouseleave', () => { 
-            // 自动巡航状态下，即使鼠标移出屏幕，背景吸引器也不应熄灭
+            // 自动巡航状态下，即使鼠标移出屏幕，背景吸引器也不应失效
             if (!isAutoCruising) {
                 mouse.isActive = false; 
             }
         });
 
-        // 💥 等离子冲击波环
+        // 💥 ----------------- 矢量动力冲击波 -----------------
         class Shockwave {
             constructor(x, y) {
                 this.x = x;
                 this.y = y;
                 this.radius = 0;
                 this.maxRadius = 260 * currentConfig.speed; 
-                this.speed = (activeEmotionName === 'angry' ? 14 : 9) * currentConfig.speed;      
+                this.speed = 9 * currentConfig.speed;      
                 this.alpha = 1.0;
             }
 
@@ -880,7 +698,7 @@
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
                 ctx.strokeStyle = `rgba(${Math.round(currentConfig.glowColor.r)}, ${Math.round(currentConfig.glowColor.g)}, ${Math.round(currentConfig.glowColor.b)}, ${this.alpha * 0.4})`;
-                ctx.lineWidth = activeEmotionName === 'angry' ? 4 : 2; 
+                ctx.lineWidth = 2; 
                 ctx.stroke();
             }
         }
@@ -888,30 +706,16 @@
         const shockwaves = [];
 
         function triggerExplosion(x, y) {
-            // 如果正在巡航，点击屏幕任何地方，立刻结束巡航，回归手动操作
-            if (isAutoCruising) {
-                deactivateCruise();
-            }
+            if (isAutoCruising) deactivateCruise();
 
             if (!isAudioMuted) {
-                playSfx(activeEmotionName, x / canvas.width, y / canvas.height);
+                const normX = x / canvas.width;
+                const normY = y / canvas.height;
+                const freq = 1100 - (normY * 980);
+                playSfx(currentConfig.waveType, freq * 0.5, 0.15, 0.01, 0.3, 0.5, normX);
                 setTimeout(() => {
-                    playSfx(activeEmotionName === 'default' ? 'melancholy' : activeEmotionName, x / canvas.width, Math.min(1.0, (y / canvas.height) + 0.2));
-                }, 50);
-            }
-
-            if (activeEmotionName === 'calm') {
-                shockwaves.push(new Shockwave(x, y));
-                particles.forEach(p => {
-                    const dx = p.x - x;
-                    const dy = p.y - y;
-                    const dist = Math.hypot(dx, dy);
-                    if (dist < 180 && dist > 0) {
-                        p.pushX += (dx / dist) * 1.5;
-                        p.pushY += (dy / dist) * 1.5;
-                    }
-                });
-                return;
+                    playSfx('sine', freq * 0.25, 0.1, 0.05, 0.4, 0.6, normX);
+                }, 60);
             }
 
             shockwaves.push(new Shockwave(x, y));
@@ -920,18 +724,16 @@
                 const dx = p.x - x;
                 const dy = p.y - y;
                 const dist = Math.hypot(dx, dy);
-                const maxPushRadius = (activeEmotionName === 'angry' ? 360 : 280) * currentConfig.speed;
+                const maxPushRadius = 280 * currentConfig.speed;
 
                 if (dist < maxPushRadius && dist > 0) {
-                    const baseForce = activeEmotionName === 'angry' ? 36 : 24;
-                    const force = (1 - dist / maxPushRadius) * baseForce * currentConfig.speed;
+                    const force = (1 - dist / maxPushRadius) * 25 * currentConfig.speed;
                     p.pushX += (dx / dist) * force;
                     p.pushY += (dy / dist) * force;
                 }
             });
         }
 
-        // 点击画布（非UI控件区域）触发爆破与打断
         window.addEventListener('mousedown', (e) => {
             if (e.target.id === 'emotionInput' || e.target.closest('#moodPanel') || e.target.closest('#sandbox') || e.target.closest('.top-controls')) return;
             triggerExplosion(e.clientX, e.clientY);
@@ -944,7 +746,7 @@
         }, { passive: true });
 
 
-        // 粒子系统物理定义
+        // 🌟 ----------------- 粒子系统核心引擎 -----------------
         class Particle {
             constructor() {
                 this.reset();
@@ -980,18 +782,7 @@
                 let targetX, targetY;
                 const dynamicOffsetAmp = 160 * currentConfig.speed;
 
-                if (activeEmotionName === 'calm') {
-                    if (mouse.isActive) {
-                        const zenAngle = tick * 0.012 + this.flickerOffset;
-                        const radius = 60 + Math.sin(tick * 0.005 + this.flickerOffset) * 40;
-                        targetX = mouse.x + Math.cos(zenAngle) * radius;
-                        targetY = mouse.y + Math.sin(zenAngle) * radius;
-                    } else {
-                        const centerAngle = tick * 0.005 + this.flickerOffset;
-                        targetX = (canvas.width / 2) + Math.cos(centerAngle) * 120;
-                        targetY = (canvas.height / 2) + Math.sin(centerAngle) * 120;
-                    }
-                } else if (mouse.isActive) {
+                if (mouse.isActive) {
                     targetX = mouse.x + (this.offsetX / 160) * dynamicOffsetAmp;
                     targetY = mouse.y + (this.offsetY / 160) * dynamicOffsetAmp;
                     
@@ -1012,15 +803,8 @@
                 this.x += this.pushX;
                 this.y += this.pushY;
 
-                const buoyancyY = activeEmotionName === 'romantic' ? -0.45 : 0;
-
                 this.x += this.vx * currentConfig.speed;
-                this.y += (this.vy * currentConfig.speed) + buoyancyY;
-
-                if (this.y < -10) {
-                    this.y = canvas.height + 10;
-                    this.x = Math.random() * canvas.width;
-                }
+                this.y += this.vy * currentConfig.speed;
             }
 
             draw() {
@@ -1055,15 +839,15 @@
         function animate() {
             updateInterpolation();
 
+            // 动态哈希流光拖尾
             ctx.fillStyle = `rgba(0, 0, 0, ${currentConfig.bgAlpha})`;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // 🛰️ 自动巡航轨迹算法（处于巡航状态时强行锁死吸引点）
+            // 自动巡航屏保轨迹
             if (isAutoCruising) {
                 mouse.isActive = true; 
                 cruiseTime += 0.012;
 
-                // 经典拟人流体利萨茹曲线
                 mouse.targetX = canvas.width / 2 + Math.cos(cruiseTime * 0.8) * (canvas.width * 0.38) * Math.sin(cruiseTime * 0.4);
                 mouse.targetY = canvas.height / 2 + Math.sin(cruiseTime * 1.1) * (canvas.height * 0.35);
 
@@ -1071,7 +855,8 @@
                 if (now - lastSfxTime > 250) { 
                     const normX = mouse.targetX / canvas.width;
                     const normY = mouse.targetY / canvas.height;
-                    playSfx(activeEmotionName, normX, normY);
+                    const freq = 1100 - (normY * 980);
+                    playSfx(currentConfig.waveType, freq, 0.08, 0.1, 0.4, 0.6, normX);
                     lastSfxTime = now;
                 }
             }
@@ -1085,7 +870,7 @@
                 }
             }
 
-            const mouseEase = (activeEmotionName === 'calm' ? 0.04 : 0.08) * currentConfig.ease * userAttractMultiplier;
+            const mouseEase = 0.08 * currentConfig.ease * userAttractMultiplier;
             mouse.x += (mouse.targetX - mouse.x) * mouseEase;
             mouse.y += (mouse.targetY - mouse.y) * mouseEase;
 
