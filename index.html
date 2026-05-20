@@ -433,17 +433,14 @@
             initAudio();
             if (!audioCtx) return;
 
-            // 1. 创建声学节点
             const osc = audioCtx.createOscillator();
             const gainNode = audioCtx.createGain();
             const panner = audioCtx.createStereoPanner ? audioCtx.createStereoPanner() : null;
 
-            // 2. 音高频率计算（鼠标越高音高越高，范围：120Hz 到 1200Hz）
             const minFreq = 120;
             const maxFreq = 1100;
             let freq = maxFreq - (normY * (maxFreq - minFreq));
 
-            // 3. 情绪特异性乐音配置
             let waveType = 'sine';
             let attack = 0.05;
             let decay = 0.4;
@@ -452,44 +449,44 @@
             let vol = 0.15;
 
             switch(emotion) {
-                case 'melancholy': // 忧郁：低沉舒缓的三角形电波，缓慢释放
+                case 'melancholy': 
                     waveType = 'triangle';
-                    freq = freq * 0.4; // 降调低音
+                    freq = freq * 0.4; 
                     attack = 0.3;
                     decay = 0.8;
                     release = 1.5;
                     vol = 0.18;
                     break;
-                case 'energetic': // 能量：清脆的锯齿脉冲
+                case 'energetic': 
                     waveType = 'sawtooth';
                     attack = 0.02;
                     decay = 0.2;
                     release = 0.3;
                     vol = 0.06;
                     break;
-                case 'calm': // 平静：纯净正弦波磬音
+                case 'calm': 
                     waveType = 'sine';
                     attack = 0.1;
                     decay = 1.0;
                     release = 2.0;
                     vol = 0.22;
                     break;
-                case 'angry': // 愤怒：高能量强冲击方波（雷鸣）
+                case 'angry': 
                     waveType = 'square';
-                    freq = freq * 0.35; // 毁灭低频
+                    freq = freq * 0.35; 
                     attack = 0.01;
                     decay = 0.3;
                     release = 0.6;
                     vol = 0.08;
                     break;
-                case 'romantic': // 浪漫：和谐七度音和弦扫音
+                case 'romantic': 
                     waveType = 'triangle';
                     attack = 0.15;
                     decay = 0.5;
                     release = 1.2;
                     vol = 0.14;
                     break;
-                default: // 默认暖色：原木敲击般的温润音色
+                default: 
                     waveType = 'sine';
                     attack = 0.04;
                     decay = 0.3;
@@ -498,15 +495,13 @@
                     break;
             }
 
-            // 确保频率在合理范围
             if (isNaN(freq) || freq < 20) freq = 220;
 
             osc.type = waveType;
             osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
 
-            // 如果支持多声相，左右声道映射鼠标的 X 位置
             if (panner) {
-                const panVal = (normX * 2) - 1; // 映射成 [-1, 1]
+                const panVal = (normX * 2) - 1; 
                 panner.pan.setValueAtTime(panVal, audioCtx.currentTime);
                 osc.connect(panner);
                 panner.connect(gainNode);
@@ -516,7 +511,6 @@
 
             gainNode.connect(audioCtx.destination);
 
-            // 音量包络线 (ADSR Envelope)
             const now = audioCtx.currentTime;
             gainNode.gain.setValueAtTime(0, now);
             gainNode.gain.linearRampToValueAtTime(vol, now + attack);
@@ -535,7 +529,6 @@
                 initAudio();
                 audioToggle.innerText = '🔊';
                 audioToggle.style.color = '#a8e6cf';
-                // 播一声柔和的初始提示音
                 playSfx('calm', 0.5, 0.5);
             } else {
                 audioToggle.innerText = '🔇';
@@ -565,8 +558,8 @@
         });
 
         // ⚙️ 各种沙盒自定义滑块绑定
-        let userGlowMultiplier = 1.0; // 用户自定义光晕倍率
-        let userAttractMultiplier = 1.0; // 用户自定义吸引力倍率
+        let userGlowMultiplier = 1.0; 
+        let userAttractMultiplier = 1.0; 
 
         const pCountSlider = document.getElementById('pCountSlider');
         const pCountVal = document.getElementById('pCountVal');
@@ -601,10 +594,22 @@
             }
         }
 
-        // 🛰️ 自动屏保巡航控制
+        // 🛰️ 自动屏保巡航全局状态
         let isAutoCruising = false;
         let cruiseTime = 0;
         const cruiseBtn = document.getElementById('cruiseBtn');
+
+        // 安全注销自动巡航的统一函数
+        function deactivateCruise() {
+            if (isAutoCruising) {
+                isAutoCruising = false;
+                const btn = document.getElementById('cruiseBtn');
+                if (btn) {
+                    btn.classList.remove('active');
+                    btn.innerText = '🛰️ 开启自动屏保巡航';
+                }
+            }
+        }
 
         cruiseBtn.addEventListener('click', (e) => {
             isAutoCruising = !isAutoCruising;
@@ -624,74 +629,73 @@
         // 🌟 ----------------- 🎭 五维超大规模情绪物理参数库 -----------------
         const EMOTION_CONFIGS = {
             default: {
-                primaryColor: { r: 255, g: 255, b: 255 },  // 核心微白
-                glowColor: { r: 255, g: 254, b: 230 },     // 暖金光晕
-                speed: 1.0,                                // 自由漂移速度系数
-                ease: 1.0,                                 // 随动敏捷系数
-                flicker: 1.0,                              // 闪烁频率系数
-                bgAlpha: 0.08,                             // 残影系数（值越小，拖尾越长）
+                primaryColor: { r: 255, g: 255, b: 255 },  
+                glowColor: { r: 255, g: 254, b: 230 },     
+                speed: 1.0,                                
+                ease: 1.0,                                 
+                flicker: 1.0,                              
+                bgAlpha: 0.08,                             
                 title: '萤火虫之舞',
                 subtitle: 'DANCE OF FIREFLIES',
                 tip: '输入或点按情绪开启海洋变幻'
             },
-            melancholy: { // 忧郁
-                primaryColor: { r: 120, g: 180, b: 255 },  // 冰蓝核心
-                glowColor: { r: 50, g: 15, b: 120 },       // 深邃蓝紫霓虹光晕
-                speed: 0.22,                               // 极其缓慢的深海流淌
-                ease: 0.3,                                 // 滞重感，阻力大
-                flicker: 0.4,                              // 极缓的明暗过渡（像沉重的呼吸）
-                bgAlpha: 0.035,                            // 极长的幽深流光拖尾
+            melancholy: { 
+                primaryColor: { r: 120, g: 180, b: 255 },  
+                glowColor: { r: 50, g: 15, b: 120 },       
+                speed: 0.22,                               
+                ease: 0.3,                                 
+                flicker: 0.4,                              
+                bgAlpha: 0.035,                            
                 title: '深海沉溺',
                 subtitle: 'MELANCHOLY OCEAN',
                 tip: '深海之中，让思绪缓慢坠落'
             },
-            energetic: { // 充满能量
-                primaryColor: { r: 255, g: 245, b: 160 },  // 亮白炽黄核心
-                glowColor: { r: 255, g: 60, b: 0 },        // 烈焰橙红高亮光晕
-                speed: 2.8,                                // 狂乱的自由流速
-                ease: 2.6,                                 // 超强随动敏捷度
-                flicker: 3.5,                              // 高频能量颤抖闪烁
-                bgAlpha: 0.15,                             // 短而锐利的爆裂流火残影
+            energetic: { 
+                primaryColor: { r: 255, g: 245, b: 160 },  
+                glowColor: { r: 255, g: 60, b: 0 },        
+                speed: 2.8,                                
+                ease: 2.6,                                 
+                flicker: 3.5,                              
+                bgAlpha: 0.15,                             
                 title: '太阳耀斑',
                 subtitle: 'SOLAR FLARE ACTIVATION',
                 tip: '狂热暴风！点击/滑动释放等离子合成声浪'
             },
-            calm: { // 平静 / 禅意
-                primaryColor: { r: 168, g: 230, b: 207 },  // 翡翠嫩绿芯
-                glowColor: { r: 35, g: 120, b: 85 },       // 幽谷寂静深绿光晕
-                speed: 0.45,                               // 极其轻柔规则的摆动
-                ease: 0.65,                                // 温和舒缓的跟随
-                flicker: 0.3,                              // 几乎不闪烁，极为温润
-                bgAlpha: 0.12,                             // 干净利落，无黏附拖尾
+            calm: { 
+                primaryColor: { r: 168, g: 230, b: 207 },  
+                glowColor: { r: 35, g: 120, b: 85 },       
+                speed: 0.45,                               
+                ease: 0.65,                                
+                flicker: 0.3,                              
+                bgAlpha: 0.12,                             
                 title: '止水微澜',
                 subtitle: 'ZEN TRANQUILITY',
                 tip: '静听琴鸣，看万物归于纯粹与安宁'
             },
-            angry: { // 愤怒 / 暴躁
-                primaryColor: { r: 255, g: 0, b: 60 },     // 沸腾血红芯
-                glowColor: { r: 120, g: 0, b: 15 },        // 暗沉血煞暗红霓虹
-                speed: 3.8,                                // 狂怒的流向
-                ease: 3.4,                                 // 超高响应，无阻尼狂乱
-                flicker: 6.0,                              // 极高频率的痛苦颤抖闪动
-                bgAlpha: 0.22,                             // 瞬间生灭的暴虐残像
+            angry: { 
+                primaryColor: { r: 255, g: 0, b: 60 },     
+                glowColor: { r: 120, g: 0, b: 15 },        
+                speed: 3.8,                                
+                ease: 3.4,                                 
+                flicker: 6.0,                              
+                bgAlpha: 0.22,                             
                 title: '熔岩怒火',
                 subtitle: 'RAGING LAVA ERUPTION',
                 tip: '怒不可遏！点击引发暴虐重低音熔岩爆破！'
             },
-            romantic: { // 浪漫
-                primaryColor: { r: 255, g: 192, b: 203 },  // 樱粉核心
-                glowColor: { r: 160, g: 40, b: 95 },       // 柔梦绯红玫瑰晕
-                speed: 0.85,                               // 摇曳摆动
-                ease: 0.75,                                // 软弹如棉花糖的拉扯感
-                flicker: 1.5,                              // 带有灵动节奏的小跳跃闪烁
-                bgAlpha: 0.05,                             // 优雅无比的少女粉红极光长曳
+            romantic: { 
+                primaryColor: { r: 255, g: 192, b: 203 },  
+                glowColor: { r: 160, g: 40, b: 95 },       
+                speed: 0.85,                               
+                ease: 0.75,                                
+                flicker: 1.5,                              
+                bgAlpha: 0.05,                             
                 title: '粉色星尘',
                 subtitle: 'ROMANTIC STELLAE',
                 tip: '满天星光，皆是宇宙回荡给你的浪漫和弦'
             }
         };
 
-        // 当前渲染物理参数
         const currentConfig = {
             primaryColor: { r: 255, g: 255, b: 255 },
             glowColor: { r: 255, g: 254, b: 230 },
@@ -710,15 +714,16 @@
         const tipText = document.getElementById('tipText');
         const moodPanel = document.getElementById('moodPanel');
 
-        // 统一UI色彩变幻逻辑
         function updateUIStyle(titleColor, subColor, tipColor) {
             appTitle.style.color = titleColor;
             appSubtitle.style.color = subColor;
             tipText.style.color = tipColor;
         }
 
-        // 解析并激活情绪
         function applyEmotion(val) {
+            // 当切换情绪时，主动停止自动巡航，回到手动控制
+            deactivateCruise();
+
             const cleanVal = val.trim();
             let matchedKey = 'default';
 
@@ -749,7 +754,6 @@
             appSubtitle.innerText = targetConfig.subtitle;
             tipText.innerText = targetConfig.tip;
 
-            // 同步激活物理按钮的状态类
             const buttons = moodPanel.querySelectorAll('.mood-btn');
             buttons.forEach(btn => {
                 btn.className = 'mood-btn';
@@ -764,18 +768,15 @@
                 }
             });
 
-            // 切换状态时鸣响一次音效
             if (!isAudioMuted) {
                 playSfx(matchedKey, 0.5, 0.4);
             }
         }
 
-        // 监听手动打字输入
         emotionInput.addEventListener('input', (e) => {
             applyEmotion(e.target.value);
         });
 
-        // 监听点击快捷按钮
         moodPanel.addEventListener('click', (e) => {
             const btn = e.target.closest('.mood-btn');
             if (!btn) return;
@@ -784,12 +785,10 @@
             applyEmotion(emotionVal);
         });
 
-        // 线性插值辅助
         function lerp(start, end, amt) {
             return start + (end - start) * amt;
         }
 
-        // 平滑更新物理过渡状态
         function updateInterpolation() {
             const rate = 0.025; 
             
@@ -807,7 +806,7 @@
             currentConfig.bgAlpha = lerp(currentConfig.bgAlpha, targetConfig.bgAlpha, rate);
         }
 
-        // 鼠标与触摸状态
+        // 鼠标与触摸物理状态
         const mouse = {
             x: window.innerWidth / 2,
             y: window.innerHeight / 2,
@@ -816,16 +815,13 @@
             isActive: false
         };
 
-        // 设定音频触发阈值，防止极高频率震荡，降低噪音
         let lastSfxTime = 0;
-        const sfxThrottle = 65; // 音响触发节流（毫秒）
+        const sfxThrottle = 65; 
 
         function updateMouse(e) {
-            // 如果开启了自动巡航，用户的鼠标滑动会打断自动巡航
+            // 【重要优化】：自动巡航中允许用户滑动鼠标至侧边，不再在此处敏感打断。
             if (isAutoCruising) {
-                isAutoCruising = false;
-                cruiseBtn.classList.remove('active');
-                cruiseBtn.innerText = '🛰️ 开启自动屏保巡航';
+                return; 
             }
 
             mouse.isActive = true;
@@ -837,7 +833,6 @@
                 mouse.targetY = e.clientY;
             }
 
-            // 音色滑动跟随（当鼠标长距离拖动时发出渐变声效）
             const now = performance.now();
             if (now - lastSfxTime > sfxThrottle && mouse.isActive) {
                 const normX = mouse.targetX / canvas.width;
@@ -850,6 +845,7 @@
         window.addEventListener('mousemove', updateMouse);
         window.addEventListener('touchmove', updateMouse, { passive: true });
         window.addEventListener('mouseleave', () => { 
+            // 自动巡航状态下，即使鼠标移出屏幕，背景吸引器也不应熄灭
             if (!isAutoCruising) {
                 mouse.isActive = false; 
             }
@@ -884,10 +880,13 @@
         const shockwaves = [];
 
         function triggerExplosion(x, y) {
-            // 触发爆炸音效（更强的爆裂感）
+            // 【打断设计】：如果正在巡航，点击屏幕任何地方，立刻结束巡航，回归手动操作
+            if (isAutoCruising) {
+                deactivateCruise();
+            }
+
             if (!isAudioMuted) {
                 playSfx(activeEmotionName, x / canvas.width, y / canvas.height);
-                // 叠加低音炮和音效果
                 setTimeout(() => {
                     playSfx(activeEmotionName === 'default' ? 'melancholy' : activeEmotionName, x / canvas.width, Math.min(1.0, (y / canvas.height) + 0.2));
                 }, 50);
@@ -924,7 +923,7 @@
             });
         }
 
-        // 点击画布（非UI区域）触发
+        // 点击画布（非UI控件区域）触发爆破与打断
         window.addEventListener('mousedown', (e) => {
             if (e.target.id === 'emotionInput' || e.target.closest('#moodPanel') || e.target.closest('#sandbox') || e.target.closest('.top-controls')) return;
             triggerExplosion(e.clientX, e.clientY);
@@ -937,7 +936,7 @@
         }, { passive: true });
 
 
-        // 粒子系统定义
+        // 粒子系统物理定义
         class Particle {
             constructor() {
                 this.reset();
@@ -966,12 +965,10 @@
             }
 
             update(tick) {
-                // 1. 闪烁
                 const tickFactor = tick * currentConfig.flicker;
                 this.alpha = this.baseAlpha + Math.sin(tickFactor * this.flickerSpeed + this.flickerOffset) * 0.25;
                 if (this.alpha < 0) this.alpha = 0;
 
-                // 2. 运动物理机制
                 let targetX, targetY;
                 const dynamicOffsetAmp = 160 * currentConfig.speed;
 
@@ -998,24 +995,20 @@
                     targetY = (canvas.height / 2) + Math.sin(centerAngle) * 100;
                 }
 
-                // 阻尼吸引随动
                 const activeEase = this.baseEase * currentConfig.ease * userAttractMultiplier;
                 this.x += (targetX - this.x) * activeEase;
                 this.y += (targetY - this.y) * activeEase;
 
-                // 衰减冲量
                 this.pushX *= 0.92;
                 this.pushY *= 0.92;
                 this.x += this.pushX;
                 this.y += this.pushY;
 
-                // 浪漫浮力
                 const buoyancyY = activeEmotionName === 'romantic' ? -0.45 : 0;
 
                 this.x += this.vx * currentConfig.speed;
                 this.y += (this.vy * currentConfig.speed) + buoyancyY;
 
-                // 浪漫越界边界处理
                 if (this.y < -10) {
                     this.y = canvas.height + 10;
                     this.x = Math.random() * canvas.width;
@@ -1034,13 +1027,11 @@
                 const dynamicSize = this.size;
                 const glowSizeMultiplier = 3.8 * userGlowMultiplier;
 
-                // 1. 绘制亮芯
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, dynamicSize, 0, Math.PI * 2);
                 ctx.fillStyle = `rgba(${rP}, ${gP}, ${bP}, ${this.alpha})`;
                 ctx.fill();
 
-                // 2. 绘制荧光光晕
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, dynamicSize * glowSizeMultiplier, 0, Math.PI * 2);
                 ctx.fillStyle = `rgba(${rG}, ${gG}, ${bG}, ${this.alpha * 0.35})`;
@@ -1048,30 +1039,28 @@
             }
         }
 
-        // 初始化粒子群
         const particles = [];
-        adjustParticleCount(280); // 默认 280
+        adjustParticleCount(280); 
 
         let tick = 0;
 
         function animate() {
-            // 平滑计算色彩和物理参数插值
             updateInterpolation();
 
-            // 动态拖尾
             ctx.fillStyle = `rgba(0, 0, 0, ${currentConfig.bgAlpha})`;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // 🛰️ 自动巡航屏保计算（利用利萨茹曲线）
+            // 🛰️ 自动巡航轨迹算法（处于巡航状态时强行锁死吸引点）
             if (isAutoCruising) {
+                mouse.isActive = true; // 确保粒子处于吸引跟随态
                 cruiseTime += 0.012;
-                // 计算拟人化流动轨迹
+
+                // 经典拟人流体利萨茹曲线
                 mouse.targetX = canvas.width / 2 + Math.cos(cruiseTime * 0.8) * (canvas.width * 0.38) * Math.sin(cruiseTime * 0.4);
                 mouse.targetY = canvas.height / 2 + Math.sin(cruiseTime * 1.1) * (canvas.height * 0.35);
 
-                // 自动产生柔和音响律动
                 const now = performance.now();
-                if (now - lastSfxTime > 250) { // 巡航模式下音效触发间隔拉长，如同风铃
+                if (now - lastSfxTime > 250) { 
                     const normX = mouse.targetX / canvas.width;
                     const normY = mouse.targetY / canvas.height;
                     playSfx(activeEmotionName, normX, normY);
@@ -1079,7 +1068,6 @@
                 }
             }
 
-            // 更新绘制视觉冲击波
             for (let i = shockwaves.length - 1; i >= 0; i--) {
                 const s = shockwaves[i];
                 if (s.update()) {
@@ -1089,7 +1077,6 @@
                 }
             }
 
-            // 随动
             const mouseEase = (activeEmotionName === 'calm' ? 0.04 : 0.08) * currentConfig.ease * userAttractMultiplier;
             mouse.x += (mouse.targetX - mouse.x) * mouseEase;
             mouse.y += (mouse.targetY - mouse.y) * mouseEase;
