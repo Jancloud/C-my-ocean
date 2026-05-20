@@ -611,6 +611,7 @@
             }
         }
 
+        // 绑定屏保巡航按钮监听，增加0.3秒自动闭合沙盒面板交互
         cruiseBtn.addEventListener('click', (e) => {
             isAutoCruising = !isAutoCruising;
             if (isAutoCruising) {
@@ -618,6 +619,13 @@
                 cruiseBtn.innerText = '🛰️ 屏保巡航运行中...';
                 mouse.isActive = true;
                 initAudio();
+                
+                // 【交互优化】：开启巡航 300 毫秒后自动收起侧边面板，确保画面纯净
+                setTimeout(() => {
+                    if (isAutoCruising) {
+                        sandbox.classList.remove('open');
+                    }
+                }, 300);
             } else {
                 cruiseBtn.classList.remove('active');
                 cruiseBtn.innerText = '🛰️ 开启自动屏保巡航';
@@ -819,7 +827,7 @@
         const sfxThrottle = 65; 
 
         function updateMouse(e) {
-            // 【重要优化】：自动巡航中允许用户滑动鼠标至侧边，不再在此处敏感打断。
+            // 自动巡航中允许用户滑动鼠标至侧边，不再在此处敏感打断。
             if (isAutoCruising) {
                 return; 
             }
@@ -880,7 +888,7 @@
         const shockwaves = [];
 
         function triggerExplosion(x, y) {
-            // 【打断设计】：如果正在巡航，点击屏幕任何地方，立刻结束巡航，回归手动操作
+            // 如果正在巡航，点击屏幕任何地方，立刻结束巡航，回归手动操作
             if (isAutoCruising) {
                 deactivateCruise();
             }
@@ -1052,7 +1060,7 @@
 
             // 🛰️ 自动巡航轨迹算法（处于巡航状态时强行锁死吸引点）
             if (isAutoCruising) {
-                mouse.isActive = true; // 确保粒子处于吸引跟随态
+                mouse.isActive = true; 
                 cruiseTime += 0.012;
 
                 // 经典拟人流体利萨茹曲线
