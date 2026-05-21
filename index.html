@@ -529,18 +529,16 @@
 
         const targetConfig = JSON.parse(JSON.stringify(currentConfig));
 
-        // 【线性插值辅助函数】—— 用于平滑数值过渡
         function lerp(start, end, amt) {
             return start + (end - start) * amt;
         }
 
         // 核心算法：将字符串哈希映射成一整套物理与色彩宇宙
         function parseTextToPhysics(str) {
-            deactivateCruise(); // 用户打字时结束巡航
+            deactivateCruise(); 
             const text = str.trim();
 
             if (text === '') {
-                // 如果空，重置回原初暖白状态
                 targetConfig.primaryColor = { r: 255, g: 255, b: 255 };
                 targetConfig.glowColor = { r: 255, g: 254, b: 230 };
                 targetConfig.speed = 1.0;
@@ -555,43 +553,74 @@
                 return;
             }
 
-            // 1. 计算非线性累加字符串哈希值值
+            // 【完全修复的语义识别优先级】
+            // 严格保证“暗夜极光”不会被单字“光”截胡，定制了极佳的区分度
+            const semanticDict = [
+                // 1. 专属词汇最高优先级
+                { keys: ['暗夜极光', '极光', '北极光'], c: { p:{r:0, g:255, b:200}, g:{r:40, g:0, b:150}, s:0.35, e:0.25, f:0.4, a:0.02, w:'sine' } },
+                { keys: ['桃之夭夭', '桃', '粉', '樱', '浪漫', '爱'], c: { p:{r:255, g:192, b:203}, g:{r:255, g:105, b:180}, s:0.85, e:0.75, f:1.5, a:0.04, w:'triangle' } },
+                { keys: ['黄金熔岩', '熔岩', '岩浆', '怒'], c: { p:{r:255, g:120, b:0}, g:{r:150, g:20, b:0}, s:1.5, e:0.8, f:2.5, a:0.06, w:'square' } },
+                { keys: ['太阳耀斑', '耀斑', '太阳', '能量'], c: { p:{r:255, g:255, b:220}, g:{r:255, g:100, b:0}, s:3.8, e:2.8, f:5.0, a:0.18, w:'sawtooth' } },
+                { keys: ['赛博朋克', '赛博', '朋克', '霓虹', '紫', '幻'], c: { p:{r:0, g:255, b:255}, g:{r:255, g:0, b:255}, s:1.8, e:1.5, f:2.5, a:0.08, w:'sawtooth' } },
+                { keys: ['星空之海', '星空', '海', '蓝', '忧郁', '深', '悲'], c: { p:{r:120, g:180, b:255}, g:{r:20, g:10, b:80}, s:0.22, e:0.3, f:0.4, a:0.035, w:'triangle' } },
+                
+                // 2. 单字兜底优先级放在最后
+                { keys: ['光', '白', '明'], c: { p:{r:255, g:255, b:220}, g:{r:255, g:100, b:0}, s:3.8, e:2.8, f:5.0, a:0.18, w:'sawtooth' } }, // 这里才是单字“光”
+                { keys: ['火'], c: { p:{r:255, g:50, b:0}, g:{r:150, g:20, b:0}, s:2.0, e:1.0, f:3.5, a:0.12, w:'square' } },
+                { keys: ['绿', '平静', '森', '翠', '草'], c: { p:{r:168, g:230, b:207}, g:{r:35, g:120, b:85}, s:0.45, e:0.65, f:0.3, a:0.12, w:'sine' } },
+                { keys: ['金', '黄'], c: { p:{r:255, g:215, b:0}, g:{r:150, g:80, b:0}, s:1.5, e:1.0, f:2.0, a:0.1, w:'sine' } }
+            ];
+
+            let matchedConfig = null;
+            for (let item of semanticDict) {
+                if (item.keys.some(k => text.includes(k))) {
+                    matchedConfig = item.c;
+                    break;
+                }
+            }
+
             let hash = 0;
             for (let i = 0; i < text.length; i++) {
                 hash = text.charCodeAt(i) + ((hash << 5) - hash);
-                hash = hash & hash; // 变成 32位整型
+                hash = hash & hash; 
             }
             const absHash = Math.abs(hash);
 
-            // 2. 映射粒子亮芯色与外环荧光色（利用正弦色彩环保证色彩高饱和且和谐）
-            const rP = Math.floor(Math.sin(absHash * 0.017 + 0) * 127 + 128);
-            const gP = Math.floor(Math.sin(absHash * 0.017 + 2) * 127 + 128);
-            const bP = Math.floor(Math.sin(absHash * 0.017 + 4) * 127 + 128);
-            targetConfig.primaryColor = { r: rP, g: gP, b: bP };
+            if (matchedConfig) {
+                targetConfig.primaryColor = matchedConfig.p;
+                targetConfig.glowColor = matchedConfig.g;
+                targetConfig.speed = matchedConfig.s;
+                targetConfig.ease = matchedConfig.e;
+                targetConfig.flicker = matchedConfig.f;
+                targetConfig.bgAlpha = matchedConfig.a;
+                targetConfig.waveType = matchedConfig.w;
+            } else {
+                const rP = Math.floor(Math.sin(absHash * 0.017 + 0) * 127 + 128);
+                const gP = Math.floor(Math.sin(absHash * 0.017 + 2) * 127 + 128);
+                const bP = Math.floor(Math.sin(absHash * 0.017 + 4) * 127 + 128);
+                targetConfig.primaryColor = { r: rP, g: gP, b: bP };
 
-            const rG = Math.floor(Math.sin(absHash * 0.035 + 1) * 110 + 110);
-            const gG = Math.floor(Math.sin(absHash * 0.035 + 3) * 110 + 110);
-            const bG = Math.floor(Math.sin(absHash * 0.035 + 5) * 110 + 110);
-            targetConfig.glowColor = { r: rG, g: gG, b: bG };
+                const rG = Math.floor(Math.sin(absHash * 0.035 + 1) * 110 + 110);
+                const gG = Math.floor(Math.sin(absHash * 0.035 + 3) * 110 + 110);
+                const bG = Math.floor(Math.sin(absHash * 0.035 + 5) * 110 + 110);
+                targetConfig.glowColor = { r: rG, g: gG, b: bG };
 
-            // 3. 映射物理特性（将数值严密收束在安全、好看的常数区间内）
-            targetConfig.speed = 0.2 + (absHash % 100) / 100 * 3.8;
-            targetConfig.ease = 0.25 + ((absHash >> 4) % 100) / 100 * 2.75;
-            targetConfig.flicker = 0.3 + ((absHash >> 8) % 100) / 100 * 4.7;
-            targetConfig.bgAlpha = 0.03 + ((absHash >> 12) % 100) / 100 * 0.19;
+                targetConfig.speed = 0.2 + (absHash % 100) / 100 * 3.8;
+                targetConfig.ease = 0.25 + ((absHash >> 4) % 100) / 100 * 2.75;
+                targetConfig.flicker = 0.3 + ((absHash >> 8) % 100) / 100 * 4.7;
+                targetConfig.bgAlpha = 0.03 + ((absHash >> 12) % 100) / 100 * 0.19;
 
-            // 4. 声音波形类型映射
-            const waveTypes = ['sine', 'triangle', 'sawtooth', 'square'];
-            targetConfig.waveType = waveTypes[absHash % 4];
+                const waveTypes = ['sine', 'triangle', 'sawtooth', 'square'];
+                targetConfig.waveType = waveTypes[absHash % 4];
+            }
 
-            // 5. 联动实时刷新页面 UI 的英文字幕与霓虹文字颜色
             const titleEl = document.getElementById('appTitle');
             const subtitleEl = document.getElementById('appSubtitle');
             
             titleEl.innerText = text;
-            titleEl.style.color = `rgb(${rP}, ${gP}, ${bP})`;
-            subtitleEl.innerText = `SPECTRUM HASH: 0x${absHash.toString(16).toUpperCase()}`;
-            subtitleEl.style.color = `rgba(${rG}, ${gG}, ${bG}, 0.5)`;
+            titleEl.style.color = `rgb(${targetConfig.primaryColor.r}, ${targetConfig.primaryColor.g}, ${targetConfig.primaryColor.b})`;
+            subtitleEl.innerText = matchedConfig ? `SEMANTIC MATCH: 0x${absHash.toString(16).toUpperCase()}` : `SPECTRUM HASH: 0x${absHash.toString(16).toUpperCase()}`;
+            subtitleEl.style.color = `rgba(${targetConfig.glowColor.r}, ${targetConfig.glowColor.g}, ${targetConfig.glowColor.b}, 0.5)`;
         }
 
         // 监听打字与小标签点击
@@ -615,7 +644,7 @@
         });
 
         function updateInterpolation() {
-            const rate = 0.03; // 丝滑缓慢晕染过渡
+            const rate = 0.03; 
             currentConfig.primaryColor.r = lerp(currentConfig.primaryColor.r, targetConfig.primaryColor.r, rate);
             currentConfig.primaryColor.g = lerp(currentConfig.primaryColor.g, targetConfig.primaryColor.g, rate);
             currentConfig.primaryColor.b = lerp(currentConfig.primaryColor.b, targetConfig.primaryColor.b, rate);
@@ -644,7 +673,6 @@
         const sfxThrottle = 65; 
 
         function updateMouse(e) {
-            // 如果开启了自动巡航，用户的鼠标滑动不会打断巡航
             if (isAutoCruising) {
                 return; 
             }
@@ -671,7 +699,6 @@
         window.addEventListener('mousemove', updateMouse);
         window.addEventListener('touchmove', updateMouse, { passive: true });
         window.addEventListener('mouseleave', () => { 
-            // 自动巡航状态下，即使鼠标移出屏幕，背景吸引器也不应失效
             if (!isAutoCruising) {
                 mouse.isActive = false; 
             }
